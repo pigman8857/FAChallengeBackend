@@ -9,6 +9,6 @@ namespace WebAPI.DTOs
     public class EmployeeListDTO
     {
         public IEnumerable<EmployeeResult> EmployeeList { get; set; }
-        public int ActualAmount { get; set; }
+        public int ActualTotalAmount { get; set; }
     }
 }

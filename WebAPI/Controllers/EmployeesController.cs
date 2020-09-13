@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
             var totalCount = results.First().TotalCount;
             var people = results.Select(r => r.Employee).ToArray();
 
-            return new EmployeeListDTO { ActualAmount = totalCount , EmployeeList = people};
+            return new EmployeeListDTO { ActualTotalAmount = totalCount , EmployeeList = people};
         }
 
         // GET: api/Employees/5
@@ -72,24 +72,33 @@ namespace WebAPI.Controllers
 
         // GET: api/Employees/name/{name}?pageNumber=1&pageSize=2
         [HttpGet("name/{name}")]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployee([FromQuery] PaginationFilter filter,string name)
+        public async Task<ActionResult<EmployeeListDTO>> GetEmployee([FromQuery] PaginationFilter filter,string name)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var pagedData = await _context.Employees
+            var query = _context.Employees
                 .Where(employee => employee.Name.Contains(name))
                 .Include(Employee => Employee.Position)
                 .Include(Employee => Employee.Department)
-                .Include(Employee => Employee.Position.ParentPosition)
-                .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
-                .Take(validFilter.PageSize)
-                .ToListAsync();
+                .Include(Employee => Employee.Position.ParentPosition);
 
-            if (pagedData == null)
-            {
-                return NotFound();
-            }
+            var results = await query.Select(e => new {
+                                Employee = new EmployeeResult
+                                {
+                                    Name = e.Name,
+                                    EmployeeId = e.EmployeeId,
+                                    Department = e.Department,
+                                    Position = e.Position,
+                                    Salary = e.Salary
+                                },
+                                TotalCount = query.Count()
+                            })
+                            .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
+                            .Take(validFilter.PageSize)
+                            .ToListAsync();
+            var totalCount = results.First().TotalCount;
+            var people = results.Select(r => r.Employee).ToArray();
 
-            return pagedData;
+            return new EmployeeListDTO { ActualTotalAmount = totalCount, EmployeeList = people };
         }
 
         // PUT: api/Employees/5
