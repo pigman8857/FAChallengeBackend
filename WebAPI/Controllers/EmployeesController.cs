@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.Filter;
 using WebAPI.Models;
+using WebAPI.DTOs;
 
 namespace WebAPI.Controllers
 {
@@ -24,17 +25,33 @@ namespace WebAPI.Controllers
 
         // GET: api/Employees?pageNumber=1&pageSize=2
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees([FromQuery] PaginationFilter filter)
+        public async Task<ActionResult<EmployeeListDTO>> GetEmployees([FromQuery] PaginationFilter filter)
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var pagedData = await _context.Employees
+            var query = _context.Employees
                 .Include(Employee => Employee.Position)
-                .Include(Employee => Employee.Department)
-                .Include(Employee => Employee.Position.ParentPosition)
+                .Include(Employee => Employee.Department);
+            var results = await query.Select(e => new {
+                    Employee = new EmployeeResult
+                    {
+                        Name = e.Name,
+                        EmployeeId = e.EmployeeId,
+                        Department = e.Department,
+                        DepartmentId = e.DepartmentId,
+                        Position = e.Position,
+                        PositionId = e.PositionId,
+                        Salary = e.Salary
+                    },
+                    TotalCount = query.Count()
+                })
                 .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
                 .Take(validFilter.PageSize)
                 .ToListAsync();
-            return pagedData;
+
+            var totalCount = results.First().TotalCount;
+            var people = results.Select(r => r.Employee).ToArray();
+
+            return new EmployeeListDTO { ActualAmount = totalCount , EmployeeList = people};
         }
 
         // GET: api/Employees/5
