@@ -16,6 +16,12 @@ namespace WebAPI.Models
         [Column(TypeName = "nvarchar(100)")]
         public string Name { get; set; }
 
-        public virtual ICollection<Employee> Employees { get; set; }
+        [Column(TypeName = "int")]
+        public int? ParentPositionId { get; set; }
+
+        [ForeignKey("ParentPositionId")]
+        public virtual Position ParentPosition { get; set; }
+
+        public virtual ICollection<Position> ChildrenPosition { get; set; }
     }
 }

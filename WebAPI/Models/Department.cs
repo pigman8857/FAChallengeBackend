@@ -19,7 +19,5 @@ namespace WebAPI.Models
         [Column(TypeName = "int")]
         [Range(0,10000)]
         public int AddOnSalary { get; set; }
-
-        public virtual ICollection<Employee> Employees { get; set; }
     }
 }
