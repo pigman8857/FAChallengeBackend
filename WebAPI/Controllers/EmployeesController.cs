@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
         {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var pagedData = await _context.Employees
-                .Where(employee => employee.Name == name)
+                .Where(employee => employee.Name.Contains(name))
                 .Include(Employee => Employee.Position)
                 .Include(Employee => Employee.Department)
                 .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
