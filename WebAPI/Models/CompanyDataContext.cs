@@ -12,8 +12,6 @@ namespace WebAPI.Models
         {
 
         }
-
-        public DbSet<PaymentDetail> PaymentDetails { get; set; }
         public DbSet<Department> Departments { get; set; }
         public DbSet<Employee> Employees { get; set; }
         public DbSet<Position> Positions { get; set; }
