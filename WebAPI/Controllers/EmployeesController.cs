@@ -37,9 +37,7 @@ namespace WebAPI.Controllers
                         Name = e.Name,
                         EmployeeId = e.EmployeeId,
                         Department = e.Department,
-                        DepartmentId = e.DepartmentId,
                         Position = e.Position,
-                        PositionId = e.PositionId,
                         Salary = e.Salary
                     },
                     TotalCount = query.Count()

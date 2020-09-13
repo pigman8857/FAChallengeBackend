@@ -15,11 +15,7 @@ namespace WebAPI.DTOs
 
         public int Salary { get; set; }
 
-        public int DepartmentId { get; set; }
-
         public  Department Department { get; set; }
-
-        public int PositionId { get; set; }
 
         public Position Position
         {
