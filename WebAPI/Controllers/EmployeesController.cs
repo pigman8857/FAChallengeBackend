@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
             _context = context;
         }
 
-        // GET: api/Employees
+        // GET: api/Employees?pageNumber=1&pageSize=2
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Employee>>> GetEmployees([FromQuery] PaginationFilter filter)
         {
@@ -30,6 +30,7 @@ namespace WebAPI.Controllers
             var pagedData = await _context.Employees
                 .Include(Employee => Employee.Position)
                 .Include(Employee => Employee.Department)
+                .Include(Employee => Employee.Position.ParentPosition)
                 .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
                 .Take(validFilter.PageSize)
                 .ToListAsync();
@@ -54,7 +55,7 @@ namespace WebAPI.Controllers
             return employee;
         }
 
-        // GET: api/Employees/name/{name}
+        // GET: api/Employees/name/{name}?pageNumber=1&pageSize=2
         [HttpGet("name/{name}")]
         public async Task<ActionResult<IEnumerable<Employee>>> GetEmployee([FromQuery] PaginationFilter filter,string name)
         {
@@ -63,6 +64,7 @@ namespace WebAPI.Controllers
                 .Where(employee => employee.Name.Contains(name))
                 .Include(Employee => Employee.Position)
                 .Include(Employee => Employee.Department)
+                .Include(Employee => Employee.Position.ParentPosition)
                 .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
                 .Take(validFilter.PageSize)
                 .ToListAsync();
