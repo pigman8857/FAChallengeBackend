@@ -29,6 +29,15 @@ namespace WebAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<EmployeeListDTO>> GetEmployees([FromQuery] PaginationFilter filter)
         {
+            try
+            {
+                return await _employeeService.FindAll(filter);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
+            /*
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var query = _context.Employees
                 .Include(Employee => Employee.Position)
@@ -52,6 +61,7 @@ namespace WebAPI.Controllers
             var people = results.Select(r => r.Employee).ToArray();
 
             return new EmployeeListDTO { ActualTotalAmount = totalCount , EmployeeList = people};
+            */
         }
 
         // GET: api/Employees/5
