@@ -5,7 +5,8 @@ using System.Threading.Tasks;
 
 namespace WebAPI.Services
 {
-    interface IEmployeeServices
+    public interface IEmployeeService
     {
+
     }
 }

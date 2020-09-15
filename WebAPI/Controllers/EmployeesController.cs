@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using WebAPI.Filter;
 using WebAPI.Models;
 using WebAPI.DTOs;
+using WebAPI.Services;
 
 namespace WebAPI.Controllers
 {
@@ -17,10 +18,11 @@ namespace WebAPI.Controllers
     public class EmployeesController : ControllerBase
     {
         private readonly CompanyDataContext _context;
-
-        public EmployeesController(CompanyDataContext context)
+        private IEmployeeService _employeeService;
+        public EmployeesController(CompanyDataContext context, IEmployeeService employeeService )
         {
             _context = context;
+            _employeeService = employeeService;
         }
 
         // GET: api/Employees?pageNumber=1&pageSize=2
