@@ -86,11 +86,9 @@ namespace WebAPI.Controllers
                 return BadRequest();
             }
 
-            _context.Entry(employee).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                await _employeeService.Modify(id, employee);
             }
             catch (DbUpdateConcurrencyException)
             {

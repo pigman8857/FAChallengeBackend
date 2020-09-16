@@ -81,5 +81,11 @@ namespace WebAPI.Services
 
             return employee;
         }
+
+        public async Task Modify(int id, Employee employee)
+        {
+            _context.Entry(employee).State = EntityState.Modified;
+            await _context.SaveChangesAsync();
+        }
     }
 }

@@ -15,5 +15,7 @@ namespace WebAPI.Services
         Task<Employee> FindOne(int id);
 
         Task<EmployeeListDTO> FindByName(PaginationFilter filter, string name);
+
+        Task Modify(int id, Employee employee);
     }
 }
