@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +17,12 @@ namespace WebAPI.Services
 
         Task<EmployeeListDTO> FindByName(PaginationFilter filter, string name);
 
-        Task Modify(int id, Employee employee);
+        void Modify(int id, Employee employee);
+
+        void Add(Employee employee);
+
+        Task Remove(int id);
+
+        Task SaveChangeAsync();
     }
 }

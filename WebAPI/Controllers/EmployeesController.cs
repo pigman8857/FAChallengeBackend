@@ -88,7 +88,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                await _employeeService.Modify(id, employee);
+                _employeeService.Modify(id, employee);
+                await _employeeService.SaveChangeAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -111,8 +112,14 @@ namespace WebAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Employee>> PostEmployee(Employee employee)
         {
-            _context.Employees.Add(employee);
-            await _context.SaveChangesAsync();
+            try
+            {
+                _employeeService.Add(employee);
+                await _employeeService.SaveChangeAsync();
+            }
+            catch (Exception e) {
+                throw e;
+            }
 
             return CreatedAtAction("GetEmployee", new { id = employee.EmployeeId }, employee);
         }
@@ -128,7 +135,7 @@ namespace WebAPI.Controllers
             }
 
             _context.Employees.Remove(employee);
-            await _context.SaveChangesAsync();
+            await _employeeService.SaveChangeAsync();
 
             return employee;
         }

@@ -16,6 +16,11 @@ namespace WebAPI.Services
             _context = context;
         }
 
+        public void Add(Employee employee)
+        {
+            _context.Employees.Add(employee);
+        }
+
         public async Task<EmployeeListDTO> FindAll(PaginationFilter filter) {
             var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
             var query = _context.Employees
@@ -71,6 +76,8 @@ namespace WebAPI.Services
             return new EmployeeListDTO { ActualTotalAmount = totalCount, EmployeeList = people };
         }
 
+
+
         public async Task<Employee> FindOne(int id)
         {
             var employee = await _context.Employees
@@ -82,9 +89,19 @@ namespace WebAPI.Services
             return employee;
         }
 
-        public async Task Modify(int id, Employee employee)
+        public void Modify(int id, Employee employee)
         {
             _context.Entry(employee).State = EntityState.Modified;
+           
+        }
+
+        public async Task Remove(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public async Task SaveChangeAsync()
+        {
             await _context.SaveChangesAsync();
         }
     }
