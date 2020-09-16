@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using WebAPI.Filter;
 using WebAPI.Models;
 using WebAPI.DTOs;
+using WebAPI.Services;
 
 namespace WebAPI.Controllers
 {
@@ -17,88 +18,61 @@ namespace WebAPI.Controllers
     public class EmployeesController : ControllerBase
     {
         private readonly CompanyDataContext _context;
-
-        public EmployeesController(CompanyDataContext context)
+        private IEmployeeService _employeeService;
+        public EmployeesController(CompanyDataContext context, IEmployeeService employeeService )
         {
             _context = context;
+            _employeeService = employeeService;
         }
 
         // GET: api/Employees?pageNumber=1&pageSize=2
         [HttpGet]
         public async Task<ActionResult<EmployeeListDTO>> GetEmployees([FromQuery] PaginationFilter filter)
         {
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var query = _context.Employees
-                .Include(Employee => Employee.Position)
-                .Include(Employee => Employee.Department);
-            var results = await query.Select(e => new {
-                    Employee = new EmployeeResult
-                    {
-                        Name = e.Name,
-                        EmployeeId = e.EmployeeId,
-                        Department = e.Department,
-                        Position = e.Position,
-                        Salary = e.Salary
-                    },
-                    TotalCount = query.Count()
-                })
-                .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
-                .Take(validFilter.PageSize)
-                .ToListAsync();
-
-            var totalCount = results.First().TotalCount;
-            var people = results.Select(r => r.Employee).ToArray();
-
-            return new EmployeeListDTO { ActualTotalAmount = totalCount , EmployeeList = people};
+            try
+            {
+                return await _employeeService.FindAll(filter);
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         // GET: api/Employees/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Employee>> GetEmployee(int id)
         {
-            var employee = await _context.Employees
-                .Where(employee => employee.EmployeeId == id)
-                .Include(Employee => Employee.Position)
-                .Include(Employee => Employee.Department)
-                .SingleAsync();
-
-            if (employee == null)
+            try
             {
-                return NotFound();
-            }
+                var employee = await _employeeService.FindOne(id);
 
-            return employee;
+                if (employee == null)
+                {
+                    return NotFound();
+                }
+
+                return employee;
+            }
+            catch (Exception e) {
+                throw e;
+            }
         }
 
         // GET: api/Employees/name/{name}?pageNumber=1&pageSize=2
         [HttpGet("name/{name}")]
         public async Task<ActionResult<EmployeeListDTO>> GetEmployee([FromQuery] PaginationFilter filter,string name)
         {
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var query = _context.Employees
-                .Where(employee => employee.Name.Contains(name))
-                .Include(Employee => Employee.Position)
-                .Include(Employee => Employee.Department)
-                .Include(Employee => Employee.Position.ParentPosition);
+            try
+            {
+                var employeeDto = await _employeeService.FindByName(filter, name);
 
-            var results = await query.Select(e => new {
-                                Employee = new EmployeeResult
-                                {
-                                    Name = e.Name,
-                                    EmployeeId = e.EmployeeId,
-                                    Department = e.Department,
-                                    Position = e.Position,
-                                    Salary = e.Salary
-                                },
-                                TotalCount = query.Count()
-                            })
-                            .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
-                            .Take(validFilter.PageSize)
-                            .ToListAsync();
-            var totalCount = results.First().TotalCount;
-            var people = results.Select(r => r.Employee).ToArray();
-
-            return new EmployeeListDTO { ActualTotalAmount = totalCount, EmployeeList = people };
+                return employeeDto;
+            }
+            catch (Exception e)
+            {
+                throw e;
+            }
         }
 
         // PUT: api/Employees/5
