@@ -24,19 +24,19 @@ namespace WebAPI.Repositories
             throw new NotImplementedException();
         }
 
-        public IEnumerable<Employee> Find(Expression<Func<Employee, bool>> predicate)
+        public async Task<IEnumerable<Employee>> Find(Expression<Func<Employee, bool>> predicate)
         {
-            throw new NotImplementedException();
+            return await CompanyDataContext.Employees.Where(predicate).ToListAsync();
         }
 
-        public Task<Employee> Get(int id)
+        public async Task<Employee> Get(int id)
         {
-            throw new NotImplementedException();
+            return await CompanyDataContext.Employees.FindAsync(id);
         }
 
-        public Task<IEnumerable<Employee>> GetAll()
+        public async Task<IEnumerable<Employee>> GetAll()
         {
-            throw new NotImplementedException();
+            return await CompanyDataContext.Employees.ToListAsync();
         }
 
         public async Task<EmployeeListDTO> GetAllWithPositionAndDepartment(int pageNumber, int pageSize)
@@ -108,7 +108,7 @@ namespace WebAPI.Repositories
 
         public void Remove(Employee entity)
         {
-            throw new NotImplementedException();
+            CompanyDataContext.Remove(entity);
         }
     }
 }
