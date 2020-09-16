@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebAPI.DTOs;
 using WebAPI.Models;
 
 namespace WebAPI.Repositories
 {
-    public interface IEmployeeRepository : IRepository
+    public interface IEmployeeRepository : IRepository<Employee>
     {
-        IEnumerable<Employee> GetAllWithPositionAndDepartment();
-        IEnumerable<Employee> GetEmployeesByNameWithPositionAndDepartment();
+        Task<Employee> GetOneWithPositionAndDepartment(int id);
+        Task<EmployeeListDTO> GetAllWithPositionAndDepartment();
+        Task<EmployeeListDTO> GetEmployeesByNameWithPositionAndDepartment();
 
 
     }
