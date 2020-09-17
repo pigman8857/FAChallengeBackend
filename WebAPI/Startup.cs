@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer;
 using Newtonsoft.Json.Serialization;
 using WebAPI.Services;
+using WebAPI.Repositories;
 
 namespace WebAPI
 {
@@ -30,6 +31,8 @@ namespace WebAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddScoped<IEmployeeService, EmployeeService>();
+            services.AddTransient(typeof(IRepository<>),typeof(Repository<>));
+            services.AddTransient(typeof(IEmployeeRepository), typeof(EmployeeRepository));
 
             services.AddControllers().AddNewtonsoftJson(options =>
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore

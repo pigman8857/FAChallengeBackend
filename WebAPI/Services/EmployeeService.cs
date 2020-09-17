@@ -6,80 +6,68 @@ using System.Threading.Tasks;
 using WebAPI.DTOs;
 using WebAPI.Filter;
 using WebAPI.Models;
+using WebAPI.Repositories;
 
 namespace WebAPI.Services
 {
     public class EmployeeService : IEmployeeService
     {
         private readonly CompanyDataContext _context;
-        public EmployeeService(CompanyDataContext context) {
+        private readonly IEmployeeRepository _employeeRepo;
+        public EmployeeService(CompanyDataContext context, IEmployeeRepository employeeRepo) {
             _context = context;
+            _employeeRepo = employeeRepo;
         }
 
-        public async Task<EmployeeListDTO> FindAll(PaginationFilter filter) {
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var query = _context.Employees
-                .Include(Employee => Employee.Position)
-                .Include(Employee => Employee.Department);
-            var results = await query.Select(e => new {
-                Employee = new EmployeeResult
-                {
-                    Name = e.Name,
-                    EmployeeId = e.EmployeeId,
-                    Department = e.Department,
-                    Position = e.Position,
-                    Salary = e.Salary
-                },
-                TotalCount = query.Count()
-            })
-                .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
-                .Take(validFilter.PageSize)
-                .ToListAsync();
-
-            var totalCount = results.First().TotalCount;
-            var people = results.Select(r => r.Employee).ToArray();
-
-            return new EmployeeListDTO { ActualTotalAmount = totalCount, EmployeeList = people };
-        }
-
-        public async Task<EmployeeListDTO> FindByName(PaginationFilter filter, string name)
+        public async Task Add(Employee employee)
         {
-            var validFilter = new PaginationFilter(filter.PageNumber, filter.PageSize);
-            var query = _context.Employees
-                .Where(employee => employee.Name.Contains(name))
-                .Include(Employee => Employee.Position)
-                .Include(Employee => Employee.Department)
-                .Include(Employee => Employee.Position.ParentPosition);
-
-            var results = await query.Select(e => new {
-                Employee = new EmployeeResult
-                {
-                    Name = e.Name,
-                    EmployeeId = e.EmployeeId,
-                    Department = e.Department,
-                    Position = e.Position,
-                    Salary = e.Salary
-                },
-                TotalCount = query.Count()
-            })
-                            .Skip((validFilter.PageNumber - 1) * validFilter.PageSize)
-                            .Take(validFilter.PageSize)
-                            .ToListAsync();
-            var totalCount = results.First().TotalCount;
-            var people = results.Select(r => r.Employee).ToArray();
-
-            return new EmployeeListDTO { ActualTotalAmount = totalCount, EmployeeList = people };
+           await _employeeRepo.Add(employee);
         }
+
+        public async Task<EmployeeListDTO> FindAll(int pageNumber, int pageSize) {
+
+           return  await _employeeRepo.GetAllWithPositionAndDepartment(pageNumber, pageSize);
+        }
+
+        public async Task<EmployeeListDTO> FindByName(int pageNumber, int pageSize, string name)
+        {
+            return await _employeeRepo.GetEmployeesByNameWithPositionAndDepartment(pageNumber, pageSize,name);
+        }
+
+
 
         public async Task<Employee> FindOne(int id)
         {
-            var employee = await _context.Employees
-                    .Where(employee => employee.EmployeeId == id)
-                    .Include(Employee => Employee.Position)
-                    .Include(Employee => Employee.Department)
-                    .SingleAsync();
+            return await _employeeRepo.GetOneWithPositionAndDepartment(id);
+        }
 
-            return employee;
+        public async Task Modify(int id, Employee employee)
+        {
+           var entry = await _employeeRepo.Get(id);
+            if (entry != null)
+            {
+                _employeeRepo.Modify(entry);
+                await Commit();
+                return;
+            }
+
+            throw new DbUpdateConcurrencyException($"No entry to update");
+        }
+
+        public async Task Remove(Employee employee)
+        {
+            _employeeRepo.Remove(employee);
+            await Commit();
+        }
+
+        public async Task Commit()
+        {
+            await _context.SaveChangesAsync();
+        }
+
+        public bool HasEmployee(int id) {
+            return _context.Employees.Any(e => e.EmployeeId == id);
+
         }
     }
 }
