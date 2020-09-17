@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using SQLitePCL;
 using System;
 using System.Collections.Generic;
@@ -37,6 +38,11 @@ namespace WebAPI.Repositories
         public void Remove(TEntity entity)
         {
             _context.Set<TEntity>().Remove(entity);
+        }
+
+        public EntityEntry<TEntity> Modify(TEntity entity) {
+            _context.Entry(entity).State = EntityState.Modified;
+            return _context.Set<TEntity>().Update(entity);
         }
     }
 }

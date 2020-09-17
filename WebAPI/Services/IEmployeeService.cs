@@ -11,18 +11,20 @@ namespace WebAPI.Services
 {
     public interface IEmployeeService
     {
-        Task<EmployeeListDTO> FindAll(PaginationFilter filter);
+        Task<EmployeeListDTO> FindAll(int pageNumber , int pageSize);
 
         Task<Employee> FindOne(int id);
 
-        Task<EmployeeListDTO> FindByName(PaginationFilter filter, string name);
+        Task<EmployeeListDTO> FindByName(int pageNumber, int pageSize, string name);
 
-        void Modify(int id, Employee employee);
+        Task Modify(int id, Employee employee);
 
-        void Add(Employee employee);
+        Task Add(Employee employee);
 
-        Task Remove(int id);
+        Task Remove(Employee employee);
 
-        Task SaveChangeAsync();
+        Task Commit();
+
+        bool HasEmployee(int id);
     }
 }

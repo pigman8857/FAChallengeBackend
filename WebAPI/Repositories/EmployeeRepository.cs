@@ -19,9 +19,9 @@ namespace WebAPI.Repositories
         }
         public EmployeeRepository(CompanyDataContext context) : base(context) { }
         
-        public Task Add(Employee entity)
+        public async Task Add(Employee entity)
         {
-            throw new NotImplementedException();
+            await CompanyDataContext.Employees.AddAsync(entity);
         }
 
         public async Task<IEnumerable<Employee>> Find(Expression<Func<Employee, bool>> predicate)
@@ -104,11 +104,6 @@ namespace WebAPI.Repositories
                                    .SingleAsync();
 
             return employee;
-        }
-
-        public void Remove(Employee entity)
-        {
-            CompanyDataContext.Remove(entity);
         }
     }
 }

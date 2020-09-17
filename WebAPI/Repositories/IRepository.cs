@@ -4,10 +4,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace WebAPI.Repositories
 {
-    public interface IRepository<TEntity>
+    public interface IRepository<TEntity> where TEntity : class
     {
         Task<TEntity> Get(int id);
         Task<IEnumerable<TEntity>> GetAll();
@@ -16,5 +17,6 @@ namespace WebAPI.Repositories
         Task Add(TEntity entity);
         void Remove(TEntity entity);
 
+        EntityEntry<TEntity> Modify(TEntity entity);
     }
 }

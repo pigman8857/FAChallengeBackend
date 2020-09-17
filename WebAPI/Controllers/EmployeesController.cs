@@ -9,6 +9,7 @@ using WebAPI.Filter;
 using WebAPI.Models;
 using WebAPI.DTOs;
 using WebAPI.Services;
+using System.Runtime.InteropServices;
 
 namespace WebAPI.Controllers
 {
@@ -17,11 +18,9 @@ namespace WebAPI.Controllers
     [ApiController]
     public class EmployeesController : ControllerBase
     {
-        private readonly CompanyDataContext _context;
-        private IEmployeeService _employeeService;
+        private readonly IEmployeeService _employeeService;
         public EmployeesController(CompanyDataContext context, IEmployeeService employeeService )
         {
-            _context = context;
             _employeeService = employeeService;
         }
 
@@ -31,7 +30,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                return await _employeeService.FindAll(filter);
+                return await _employeeService.FindAll(filter.PageNumber,filter.PageSize);
             }
             catch (Exception e)
             {
@@ -65,7 +64,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var employeeDto = await _employeeService.FindByName(filter, name);
+                var employeeDto = await _employeeService.FindByName(filter.PageNumber,filter.PageSize, name);
 
                 return employeeDto;
             }
@@ -88,8 +87,8 @@ namespace WebAPI.Controllers
 
             try
             {
-                _employeeService.Modify(id, employee);
-                await _employeeService.SaveChangeAsync();
+               await _employeeService.Modify(id, employee);
+
             }
             catch (DbUpdateConcurrencyException)
             {
@@ -114,8 +113,8 @@ namespace WebAPI.Controllers
         {
             try
             {
-                _employeeService.Add(employee);
-                await _employeeService.SaveChangeAsync();
+                await _employeeService.Add(employee);
+                await _employeeService.Commit();
             }
             catch (Exception e) {
                 throw e;
@@ -128,21 +127,20 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Employee>> DeleteEmployee(int id)
         {
-            var employee = await _context.Employees.FindAsync(id);
+            var employee = await _employeeService.FindOne(id);
             if (employee == null)
             {
                 return NotFound();
             }
 
-            _context.Employees.Remove(employee);
-            await _employeeService.SaveChangeAsync();
+            await _employeeService.Remove(employee);
 
             return employee;
         }
 
         private bool EmployeeExists(int id)
         {
-            return _context.Employees.Any(e => e.EmployeeId == id);
+            return _employeeService.HasEmployee(id);
         }
     }
 }
