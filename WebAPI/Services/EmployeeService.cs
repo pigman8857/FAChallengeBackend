@@ -6,14 +6,17 @@ using System.Threading.Tasks;
 using WebAPI.DTOs;
 using WebAPI.Filter;
 using WebAPI.Models;
+using WebAPI.Repositories;
 
 namespace WebAPI.Services
 {
     public class EmployeeService : IEmployeeService
     {
         private readonly CompanyDataContext _context;
-        public EmployeeService(CompanyDataContext context) {
+        private readonly IEmployeeRepository _employeeRepo;
+        public EmployeeService(CompanyDataContext context, IEmployeeRepository employeeRepo) {
             _context = context;
+            _employeeRepo = employeeRepo;
         }
 
         public void Add(Employee employee)
